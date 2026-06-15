@@ -1,41 +1,42 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
-import { Brain } from 'lucide-react';
-import { useState, useEffect } from 'react';
-
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '#features', label: 'Features' },
-  { href: '#how-it-works', label: 'How It Works' },
-  { href: '/history', label: 'History' },
-];
+import { Brain, LogOut, User } from 'lucide-react';
+import { useStore } from '@/store/useStore';
 
 export function Navbar() {
   const pathname = usePathname();
-  const { scrollY } = useScroll();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout } = useStore();
 
-  useEffect(() => {
-    return scrollY.onChange((latest) => {
-      setIsScrolled(latest > 20);
-    });
-  }, [scrollY]);
+  const publicLinks = [
+    { href: '/', label: 'Home' },
+    { href: '/login', label: 'Sign In' },
+  ];
+
+  const portalLinks = [
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/upload', label: 'Upload' },
+    { href: '/job-description', label: 'Skill Gap' },
+    { href: '/interview', label: 'Interview' },
+    { href: '/coding', label: 'Coding IDE' },
+    { href: '/analytics', label: 'Analytics' },
+    { href: '/history', label: 'History' },
+  ];
+
+  const links = user ? portalLinks : publicLinks;
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-3 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-white/10' : 'py-6 bg-transparent'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 py-3 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-white/10"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <div className="section-container flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href={user ? '/dashboard' : '/'} className="flex items-center gap-2 group">
           <motion.div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'var(--gradient-primary)' }}
@@ -48,13 +49,13 @@ export function Navbar() {
             className="font-bold text-2xl tracking-tight hidden sm:block"
             style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--text-primary)' }}
           >
-            Inter<span className="gradient-text">AI</span>
+            MockMate <span className="gradient-text">AI</span>
           </span>
         </Link>
 
         {/* Center Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
+        <div className="hidden lg:flex items-center gap-6">
+          {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -68,16 +69,31 @@ export function Navbar() {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link
-            href="/upload"
-            className="btn-primary text-sm hidden sm:block"
-          >
-            Start Interview
-          </Link>
           
-          {/* Mobile menu would go here, but focusing on premium desktop feel first */}
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-semibold text-indigo-400">
+                <User size={14} />
+                <span>{user.name}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all text-red-500 cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/register"
+              className="btn-primary text-sm hover:scale-[1.02] transition-transform duration-200"
+            >
+              Get Started
+            </Link>
+          )}
         </div>
       </div>
     </motion.nav>

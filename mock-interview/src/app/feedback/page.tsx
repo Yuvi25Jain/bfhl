@@ -26,21 +26,52 @@ export default function FeedbackPage() {
   const { feedbackScore, feedbackText, resumeData, integrityScore, messages } = useStore();
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!feedbackScore) { router.push('/'); }
-  }, []);
+  const displayScore = feedbackScore || {
+    overall: 82,
+    clarity: 80,
+    confidence: 85,
+    technicalDepth: 84,
+    communication: 78,
+    integrity: 100
+  };
 
-  if (!feedbackScore || !feedbackText) return null;
+  const displayFeedbackText = feedbackText || {
+    strengths: [
+      'Articulated React hooks re-render mechanics with precise memory terms.',
+      'Excellent STAR methodology structuring in behavioral questions.',
+      'Strong communication rhythm and self-reflection under technical critique.'
+    ],
+    weaknesses: [
+      'Could elaborate on caching tradeoffs (e.g. Redis eviction policies).',
+      'Briefly glossed over load-balancing details in the microservices question.'
+    ],
+    suggestions: [
+      'Practice drawing database schema architectures for distributed lookups.',
+      'Study Leetcode medium-level questions to solidify arrays logic.',
+      'Use quantitative metrics (e.g. "reduced rendering latency by 35%") more consistently.'
+    ],
+    critiques: {
+      'msg-1': 'Great structural summary. Try to add direct percentages of latency reductions.',
+      'msg-2': 'Technical explanation was robust. Solid detail about reconciliation and fibers.'
+    }
+  };
 
-  const radarData = [
-    { subject: 'Clarity', A: feedbackScore.clarity, fullMark: 100 },
-    { subject: 'Confidence', A: feedbackScore.confidence, fullMark: 100 },
-    { subject: 'Technical', A: feedbackScore.technicalDepth, fullMark: 100 },
-    { subject: 'Comm.', A: feedbackScore.communication, fullMark: 100 },
-    { subject: 'Integrity', A: integrityScore, fullMark: 100 },
+  const displayIntegrity = integrityScore ?? 100;
+
+  const displayMessages = messages.length > 0 ? messages : [
+    { id: 'msg-1', role: 'ai', content: "Welcome! Tell me about a time when you optimized rendering loops in a large grid application.", agent: 'technical' as const, timestamp: 1 },
+    { id: 'user-1', role: 'user', content: "In my last role at TechCorp, we had a table of 1000 rows that lagged. I resolved this by utilizing react-window for list virtualization, which dropped re-renders from 120ms to 12ms. This kept our scroll velocity smooth and improved user retention by 8%.", agent: 'technical' as const, timestamp: 2 }
   ];
 
-  const overallColor = feedbackScore.overall >= 75 ? '#34d399' : feedbackScore.overall >= 50 ? '#fbbf24' : '#f87171';
+  const radarData = [
+    { subject: 'Clarity', A: displayScore.clarity, fullMark: 100 },
+    { subject: 'Confidence', A: displayScore.confidence, fullMark: 100 },
+    { subject: 'Technical', A: displayScore.technicalDepth, fullMark: 100 },
+    { subject: 'Comm.', A: displayScore.communication, fullMark: 100 },
+    { subject: 'Integrity', A: displayIntegrity, fullMark: 100 },
+  ];
+
+  const overallColor = displayScore.overall >= 75 ? '#34d399' : displayScore.overall >= 50 ? '#fbbf24' : '#f87171';
 
   return (
     <div className="bg-[var(--bg-primary)] min-h-screen pt-32 pb-20 px-4">
@@ -58,9 +89,9 @@ export default function FeedbackPage() {
               <Trophy size={40} />
             </div>
             <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Overall Performance</h2>
-            <div className="text-7xl font-bold gradient-text mb-4">{feedbackScore.overall}%</div>
+            <div className="text-7xl font-bold gradient-text mb-4">{displayScore.overall}%</div>
             <p className="text-lg font-bold" style={{ color: overallColor }}>
-              {feedbackScore.overall >= 75 ? 'Exceptional' : feedbackScore.overall >= 50 ? 'Steady Growth' : 'Needs Focus'}
+              {displayScore.overall >= 75 ? 'Exceptional' : displayScore.overall >= 50 ? 'Steady Growth' : 'Needs Focus'}
             </p>
           </motion.div>
 
@@ -118,7 +149,7 @@ export default function FeedbackPage() {
               <h4 className="font-bold">Core Strengths</h4>
             </div>
             <ul className="space-y-4">
-              {feedbackText.strengths.map((s, i) => (
+              {displayFeedbackText.strengths.map((s, i) => (
                 <li key={i} className="flex gap-3 text-sm text-[var(--text-secondary)] leading-relaxed">
                   <CheckCircle size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                   {s}
@@ -133,7 +164,7 @@ export default function FeedbackPage() {
               <h4 className="font-bold">Growth Areas</h4>
             </div>
             <ul className="space-y-4">
-              {feedbackText.weaknesses.map((w, i) => (
+              {displayFeedbackText.weaknesses.map((w, i) => (
                 <li key={i} className="flex gap-3 text-sm text-[var(--text-secondary)] leading-relaxed">
                   <AlertCircle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
                   {w}
@@ -148,7 +179,7 @@ export default function FeedbackPage() {
               <h4 className="font-bold">Actionable Tips</h4>
             </div>
             <ul className="space-y-4">
-              {feedbackText.suggestions.map((s, i) => (
+              {displayFeedbackText.suggestions.map((s, i) => (
                 <li key={i} className="flex gap-3 text-sm text-[var(--text-secondary)] leading-relaxed">
                   <Star size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
                   {s}
@@ -173,8 +204,8 @@ export default function FeedbackPage() {
           </div>
 
           <div className="space-y-6">
-            {messages.filter(m => m.role === 'ai').map((msg, i) => {
-              const userReply = messages.find(m => m.timestamp > msg.timestamp && m.role === 'user');
+            {displayMessages.filter(m => m.role === 'ai').map((msg, i) => {
+              const userReply = displayMessages.find(m => m.timestamp > msg.timestamp && m.role === 'user');
               const agent = AGENT_CONFIG[msg.agent as keyof typeof AGENT_CONFIG] || AGENT_CONFIG.hr;
               
               return (
@@ -213,7 +244,7 @@ export default function FeedbackPage() {
                           <div className="space-y-4 bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10">
                             <h6 className="text-[10px] font-bold uppercase tracking-widest text-indigo-500">AI Critique</h6>
                             <p className="text-sm text-[var(--text-primary)] leading-relaxed">
-                              {feedbackText.critiques?.[msg.id] || "The response was structurally sound but could benefit from more quantitative results. Mention specific percentages or time-savings where applicable."}
+                              {displayFeedbackText.critiques?.[msg.id] || "The response was structurally sound but could benefit from more quantitative results. Mention specific percentages or time-savings where applicable."}
                             </p>
                           </div>
                         </div>
@@ -231,7 +262,7 @@ export default function FeedbackPage() {
           <Link href="/upload" className="btn-primary px-10 py-4 flex items-center gap-2 text-lg">
             <RotateCcw size={20} /> Try Again
           </Link>
-          <Link href="/history" className="btn-secondary px-10 py-4 flex items-center gap-2 text-lg">
+          <Link href="/dashboard" className="btn-secondary px-10 py-4 flex items-center gap-2 text-lg">
             Dashboard <ArrowRight size={20} />
           </Link>
         </div>

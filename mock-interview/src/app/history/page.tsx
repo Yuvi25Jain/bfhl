@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore, InterviewSession } from '@/store/useStore';
 import { 
@@ -16,9 +16,51 @@ import Link from 'next/link';
 const COLORS = ['#818cf8', '#a78bfa', '#34d399', '#fbbf24', '#f87171'];
 
 export default function HistoryPage() {
-  const { history, clearHistory } = useStore();
+  const { history, clearHistory, addToHistory } = useStore();
   const [selectedSession, setSelectedSession] = useState<InterviewSession | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (history.length === 0) {
+      const mockSessions: InterviewSession[] = [
+        {
+          id: 'session-1',
+          date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          role: 'Frontend Developer',
+          scores: { overall: 65, clarity: 60, confidence: 70, technicalDepth: 55, communication: 68, integrity: 98 },
+          duration: 320,
+          messages: [
+            { id: '1', role: 'ai', content: 'What is code splitting in Next.js?', agent: 'technical', timestamp: 1 },
+            { id: '2', role: 'user', content: 'Code splitting is a technique that splits bundles to load components dynamically, lowering initial bundle download weights.', timestamp: 2 }
+          ],
+          feedback: {
+            strengths: ['Understood React code bundle layout.'],
+            weaknesses: ['Vague on dynamic routing mechanics.'],
+            suggestions: ['Read dynamic imports docs.'],
+            critiques: { '1': 'Good description but could benefit from listing next/dynamic usage.' }
+          }
+        },
+        {
+          id: 'session-2',
+          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          role: 'Full Stack Engineer',
+          scores: { overall: 82, clarity: 80, confidence: 85, technicalDepth: 84, communication: 78, integrity: 100 },
+          duration: 512,
+          messages: [
+            { id: '3', role: 'ai', content: 'Explain Node.js Event Loop.', agent: 'technical', timestamp: 3 },
+            { id: '4', role: 'user', content: 'The event loop delegates async system kernel calls and manages executing handlers across phases (timers, poll, check).', timestamp: 4 }
+          ],
+          feedback: {
+            strengths: ['Clear explanation of phase ordering.'],
+            weaknesses: ['Could elaborate on microtask queue priority.'],
+            suggestions: ['Research process.nextTick priority queues.'],
+            critiques: { '3': 'Excellent breakdown of Event Loop mechanics.' }
+          }
+        }
+      ];
+      mockSessions.forEach(session => addToHistory(session));
+    }
+  }, []);
 
   const stats = [
     { label: 'Total Interviews', value: history.length, icon: History, color: 'text-indigo-500' },

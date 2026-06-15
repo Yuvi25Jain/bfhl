@@ -166,3 +166,30 @@ h1, h2, h3, h4 {
   0%, 100% { height: 4px; }
   50% { height: 20px; }
 }
+
+/* ── Dark Grid Backdrops ── */
+.dark-grid {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+}
+
+.dark .dark-grid {
+  background-image: 
+    linear-gradient(to right, rgba(129, 140, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(129, 140, 248, 0.05) 1px, transparent 1px);
+}
+
+/* Glassmorphism elements */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}

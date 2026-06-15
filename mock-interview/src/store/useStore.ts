@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { ParsedResume, GapAnalysisResult, CodeEvaluationResult } from '@/services/mockApi';
 
 export interface ResumeData {
   name: string;
@@ -50,16 +51,43 @@ export interface InterviewSession {
   };
 }
 
+export interface User {
+  name: string;
+  email: string;
+  targetRole?: string;
+}
+
 interface AppState {
   // Theme
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
   toggleTheme: () => void;
 
+  // User Auth
+  user: User | null;
+  login: (name: string, email: string, targetRole?: string) => void;
+  logout: () => void;
+
   // Resume
   resumeData: ResumeData | null;
   setResumeData: (data: ResumeData) => void;
   clearResume: () => void;
+
+  // Job Description & Gap Analysis
+  jobDescription: string;
+  setJobDescription: (jd: string) => void;
+  gapAnalysis: GapAnalysisResult | null;
+  setGapAnalysis: (analysis: GapAnalysisResult | null) => void;
+
+  // Coding Round
+  codingProblem: string;
+  codingLanguage: string;
+  codingCode: string;
+  codingResult: CodeEvaluationResult | null;
+  setCodingProblem: (p: string) => void;
+  setCodingLanguage: (l: string) => void;
+  setCodingCode: (c: string) => void;
+  setCodingResult: (r: CodeEvaluationResult | null) => void;
 
   // Interview
   messages: Message[];
@@ -105,10 +133,37 @@ export const useStore = create<AppState>()(
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
 
+      // User Auth
+      user: null,
+      login: (name, email, targetRole) => set({ user: { name, email, targetRole } }),
+      logout: () => set({ user: null, resumeData: null, gapAnalysis: null, codingResult: null, messages: [] }),
+
       // Resume
       resumeData: null,
       setResumeData: (data) => set({ resumeData: data }),
       clearResume: () => set({ resumeData: null }),
+
+      // Job Description & Gap Analysis
+      jobDescription: '',
+      setJobDescription: (jobDescription) => set({ jobDescription }),
+      gapAnalysis: null,
+      setGapAnalysis: (gapAnalysis) => set({ gapAnalysis }),
+
+      // Coding Round
+      codingProblem: 'Two Sum',
+      codingLanguage: 'javascript',
+      codingCode: `// Given an array of integers nums and an integer target,
+// return indices of the two numbers such that they add up to target.
+
+function twoSum(nums, target) {
+  // Write your code here
+  
+}`,
+      codingResult: null,
+      setCodingProblem: (codingProblem) => set({ codingProblem }),
+      setCodingLanguage: (codingLanguage) => set({ codingLanguage }),
+      setCodingCode: (codingCode) => set({ codingCode }),
+      setCodingResult: (codingResult) => set({ codingResult }),
 
       // Interview
       messages: [],
@@ -156,6 +211,7 @@ export const useStore = create<AppState>()(
       name: 'mock-interview-store',
       partialize: (s) => ({
         theme: s.theme,
+        user: s.user,
         history: s.history,
       }),
     }

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { useStore } from '@/store/useStore';
+import { mockApi } from '@/services/mockApi';
 import { 
   Upload, FileText, X, CheckCircle, ChevronRight, 
   Briefcase, Loader2, Sparkles, User, Database, 
@@ -11,12 +12,11 @@ import {
 } from 'lucide-react';
 
 const DOMAINS = [
-  { id: 'frontend', label: 'Frontend', icon: Globe, skills: ['React', 'Next.js', 'Tailwind', 'TypeScript', 'CSS'] },
-  { id: 'backend', label: 'Backend', icon: Server, skills: ['Node.js', 'Python', 'Go', 'SQL', 'PostgreSQL'] },
-  { id: 'fullstack', label: 'Full Stack', icon: Code2, skills: ['MERN', 'T3 Stack', 'Serverless', 'APIs'] },
-  { id: 'data-science', label: 'Data Science', icon: Database, skills: ['Python', 'Pandas', 'PyTorch', 'SQL'] },
-  { id: 'devops', label: 'DevOps', icon: Terminal, skills: ['Docker', 'K8s', 'CI/CD', 'AWS', 'Terraform'] },
-  { id: 'hr', label: 'HR & People', icon: User, skills: ['Recruiting', 'Culture', 'Compliance', 'Sourcing'] },
+  { id: 'frontend', label: 'Frontend Developer', icon: Globe, skills: ['React', 'Next.js', 'Tailwind', 'TypeScript', 'CSS'] },
+  { id: 'backend', label: 'Backend Developer', icon: Server, skills: ['Node.js', 'Python', 'Go', 'SQL', 'PostgreSQL'] },
+  { id: 'fullstack', label: 'Full Stack Developer', icon: Code2, skills: ['MERN', 'T3 Stack', 'Serverless', 'APIs'] },
+  { id: 'data-science', label: 'Data Scientist', icon: Database, skills: ['Python', 'Pandas', 'PyTorch', 'SQL'] },
+  { id: 'devops', label: 'DevOps Engineer', icon: Terminal, skills: ['Docker', 'K8s', 'CI/CD', 'AWS', 'Terraform'] },
 ];
 
 export default function UploadPage() {
@@ -33,7 +33,7 @@ export default function UploadPage() {
       setFile(accepted[0]);
       handleStartProcessing(accepted[0]);
     }
-  }, []);
+  }, [selectedDomain]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -58,28 +58,22 @@ export default function UploadPage() {
 
     try {
       if (targetFile) {
-        const res = await fetch('/api/parse-resume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName: targetFile.name, targetRole: 'Candidate' }),
-        });
-        const data = await res.json();
+        const data = await mockApi.parseResume(targetFile.name, selectedDomain || 'General Developer');
         setResumeData(data);
       } else {
         // Manual entry
         setResumeData({
           name: 'Candidate',
-          email: '',
+          email: 'candidate@mockmate.ai',
           skills: selectedSkills,
-          experience: [],
-          projects: [],
-          education: '',
-          targetRole: selectedDomain || 'General',
+          experience: ['Entry Level Candidate — manual skills entry profile.'],
+          projects: ['Personal Portfolio site'],
+          education: 'N/A',
+          targetRole: selectedDomain || 'General Developer',
         });
       }
       
-      await new Promise(r => setTimeout(r, 2000));
-      router.push('/interview');
+      router.push('/job-description');
     } catch {
       setStep('method');
     }

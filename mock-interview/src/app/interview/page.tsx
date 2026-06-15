@@ -6,6 +6,7 @@ import { useStore, Message } from '@/store/useStore';
 import { AgentAvatar } from '@/components/AgentAvatar';
 import { Recorder } from '@/components/Recorder';
 import { IntegrityMonitor } from '@/components/IntegrityMonitor';
+import { mockApi } from '@/services/mockApi';
 import {
   Clock, ChevronRight, CheckCircle, AlertCircle, MessageSquare,
   Zap, BarChart2, LogOut, Brain, User, Shield, Activity, 
@@ -61,19 +62,14 @@ export default function InterviewPage() {
     setAiTyping(true);
 
     try {
-      const res = await fetch('/api/generate-question', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent,
-          questionIndex: qIdx,
-          targetRole: resumeData?.targetRole,
-          skills: resumeData?.skills,
-          previousMessages: messages.slice(-4).map(m => ({ role: m.role, content: m.content })),
-        }),
-      });
-      const data = await res.json();
-      setCurrentQuestion(data.question);
+      const question = await mockApi.generateQuestion(
+        agent,
+        qIdx,
+        resumeData?.targetRole,
+        resumeData?.skills,
+        messages.slice(-4).map(m => ({ role: m.role, content: m.content }))
+      );
+      setCurrentQuestion(question);
       setAiTyping(false);
     } catch {
       setCurrentQuestion("Could you elaborate on your experience with scaling high-traffic applications?");
@@ -122,28 +118,23 @@ export default function InterviewPage() {
     setAiTyping(true);
 
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages,
-          role: resumeData?.targetRole,
-          integrityScore,
-          duration: elapsed,
-        }),
-      });
-      const data = await res.json();
-      setFeedbackScore(data.scores);
-      setFeedbackText(data.feedback);
+      const result = await mockApi.getFeedback(
+        messages,
+        resumeData?.targetRole,
+        integrityScore,
+        elapsed
+      );
+      setFeedbackScore(result.scores);
+      setFeedbackText(result.feedback);
 
       addToHistory({
         id: Date.now().toString(),
         date: new Date().toISOString(),
         role: resumeData?.targetRole || 'Unknown',
-        scores: data.scores,
+        scores: result.scores,
         messages,
         duration: elapsed,
-        feedback: data.feedback,
+        feedback: result.feedback,
       });
 
       router.push('/feedback');
