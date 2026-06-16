@@ -70,7 +70,7 @@ export function AgentAvatar({ agent, isSpeaking }: AgentAvatarProps) {
 
         {/* Avatar itself */}
         <motion.div
-          className="relative w-32 h-32 rounded-full flex items-center justify-center"
+          className="relative w-32 h-32 rounded-full flex items-center justify-center overflow-hidden"
           style={{
             background: cfg.gradient,
             boxShadow: isSpeaking ? `0 0 40px ${cfg.glow}, 0 0 80px ${cfg.glow}` : `0 0 20px ${cfg.glow}`,
@@ -78,8 +78,21 @@ export function AgentAvatar({ agent, isSpeaking }: AgentAvatarProps) {
           animate={isSpeaking ? { scale: [1, 1.05, 1] } : { scale: 1 }}
           transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: 'easeInOut' }}
         >
-          <Icon size={48} className="text-white" />
+          <video
+            src="/avatar.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover rounded-full"
+          />
         </motion.div>
+      </div>
+
+      {/* AI Interviewer Connected status indicator */}
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 select-none">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">AI Interviewer Connected</span>
       </div>
 
       {/* Agent label */}
