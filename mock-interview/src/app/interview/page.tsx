@@ -270,14 +270,26 @@ export default function InterviewPage() {
         {/* Right: AI Panel (30%) */}
         <div className="w-[380px] bg-[var(--bg-secondary)] border-l border-white/10 p-8 flex flex-col gap-8 hidden lg:flex">
           {/* Active Agent Card */}
-          <div className="premium-card p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-3 opacity-20">
-              <agentInfo.icon size={64} />
-            </div>
-            <div className="relative z-10">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 mb-6">
-                <agentInfo.icon size={32} />
+          <div className="premium-card p-6 relative overflow-hidden flex flex-col items-center text-center">
+            <div className="relative z-10 w-full flex flex-col items-center">
+              {/* Visible Video Avatar */}
+              <div className="w-32 h-32 rounded-full overflow-hidden relative mb-4 border-2 border-indigo-500/20 bg-indigo-500/10 shadow-lg shadow-indigo-500/15">
+                <video
+                  src="/avatar.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
               </div>
+
+              {/* Connected Status badge */}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 select-none mb-4 w-fit mx-auto">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">AI Interviewer Connected</span>
+              </div>
+
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">{agentInfo.label}</h3>
               <p className="text-xs text-[var(--text-muted)] mb-6">{agentInfo.subtitle}</p>
               
